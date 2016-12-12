@@ -52,7 +52,7 @@ public class QuizEJBTest {
 
     @Before
     public void setup() {
-        rootCategory = categoryEJB.registerCategory("Science" + count);
+        rootCategory = categoryEJB.registerRootCategory("Science" + count);
         subCategory = categoryEJB.registerSubCategory(rootCategory, "Computer Science" + count);
         answerList = new ArrayList<>();
         answerList.add("answer1");

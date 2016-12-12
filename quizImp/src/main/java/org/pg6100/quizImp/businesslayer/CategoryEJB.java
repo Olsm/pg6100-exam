@@ -19,21 +19,21 @@ public class CategoryEJB {
 
     public CategoryEJB(){}
 
-    public Category registerCategory(String name) {
+    public Category registerRootCategory(String name) {
         Category rootCategory = new Category(name);
         em.persist(rootCategory);
         return rootCategory;
     }
 
     public SubCategory registerSubCategory(Category rootCategory, String name) {
-        rootCategory = getCategory(rootCategory.getId());
+        rootCategory = getRootCategory(rootCategory.getId());
         SubCategory subCategory = new SubCategory(rootCategory, name);
         em.persist(subCategory);
         rootCategory.addSubCategory(subCategory);
         return subCategory;
     }
 
-    public Category getCategory(Long id) {
+    public Category getRootCategory(Long id) {
         return em.find(Category.class, id);
     }
 
@@ -42,14 +42,14 @@ public class CategoryEJB {
     }
 
     public boolean rootCatExists(Long id) {
-        return getCategory(id) != null;
+        return getRootCategory(id) != null;
     }
     public boolean subCatExists(Long id) {
         return getSubCategory(id) != null;
     }
 
-    public boolean updateCategory(@NotNull Long id, @NotNull String newCategory) {
-            Category rootCategory = getCategory(id);
+    public boolean updateRootCategory(@NotNull Long id, @NotNull String newCategory) {
+            Category rootCategory = getRootCategory(id);
             if (rootCategory == null) {
                 return false;
             }
@@ -58,7 +58,7 @@ public class CategoryEJB {
     }
 
     public boolean updateSubCategory(@NotNull Long id, @NotNull String newCategory, @NotNull Long rootCategoryId) {
-        Category rootCat = getCategory(rootCategoryId);
+        Category rootCat = getRootCategory(rootCategoryId);
         SubCategory subCat = getSubCategory(id);
         if (rootCat == null || subCat == null) {
             return false;
@@ -68,13 +68,13 @@ public class CategoryEJB {
         return true;
     }
 
-    public void deleteCategory(@NotNull Long id) {
-        em.remove(getCategory(id));
+    public void deleteRootCategory(@NotNull Long id) {
+        em.remove(getRootCategory(id));
     }
 
     public void deleteSubCategory(@NotNull Long id) {
         SubCategory subCategory = getSubCategory(id);
-        getCategory(subCategory.getRootCategory().getId()).removeSubCategory(subCategory);
+        getRootCategory(subCategory.getRootCategory().getId()).removeSubCategory(subCategory);
         em.remove(subCategory);
     }
 
