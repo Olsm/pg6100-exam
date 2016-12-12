@@ -39,26 +39,29 @@ public class QuizRestIT extends QuizRestTestBase {
     }
 
     @Test
-    public void testCreateAndGet() {
-        String question = "Such Question";
-        List<String> answerList = new ArrayList<>();
-        answerList.add("ans1");
-        answerList.add("ans2");
-        answerList.add("ans3");
-        answerList.add("ans4");
-        String correctAnswer = answerList.get(3);
-        testGet().body("size()", is(0));
-
-        QuizDTO dto = createQuizDTO(null, subCategory, question, answerList, correctAnswer);
-        String id = testRegisterQuiz(dto);
+    public void testCreateAndGetQuiz() {
+        QuizDTO dto = createQuizDTO();
+        dto.id = testRegisterQuiz(dto);
         testGet().body("size()", is(1));
-        testGet("/{id}", id)
-                .body("id", is(id))
+        testGet("/{id}", dto.id)
+                .body("id", is(dto.id))
                 .body("category.name", Is.is(subCategory.name))
                 .body("category.rootCategoryId", Is.is(rootCategory.id))
-                .body("question", is(question))
-                .body("answerList", is(answerList))
-                .body("correctAnswer", is(correctAnswer));
+                .body("question", is(dto.question))
+                .body("answerList", is(dto.answerList))
+                .body("correctAnswer", is(dto.correctAnswer));
+    }
+
+    @Test
+    public void testGetRandom() {
+        QuizDTO dto = createQuizDTO();
+        dto.id = testRegisterQuiz(dto);
+        testGet("/random").body("id", is(dto.id));
+    }
+
+    @Test
+    public void testGetRandomNoQuizzes() {
+        get("/quizzes/random").then().statusCode(400);
     }
 
     @Test

@@ -76,6 +76,13 @@ public class QuizRestImpl implements QuizRestApi {
     }
 
     @Override
+    public QuizDTO getRandom() {
+        if (QEJB.getAll().size() == 0)
+            throw  new  WebApplicationException("There must be at least 1 quiz to get a random quiz", 400);
+        return QuizConverter.transform(QEJB.getRandomQuiz());
+    }
+
+    @Override
     public void update(Long pathId, QuizDTO dto) {
         if (dto.id == null || dto.question == null || dto.category == null || dto.answerList == null || dto.correctAnswer == null)
             throw new WebApplicationException("All parameters required, they cannot be null", 400);

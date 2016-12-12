@@ -9,6 +9,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Random;
 
 @Stateless
 public class QuizEJB {
@@ -31,6 +32,12 @@ public class QuizEJB {
 
     public Quiz getQuiz(Long id) {
         return em.find(Quiz.class, id);
+    }
+
+    public Quiz getRandomQuiz() {
+        List<Quiz> quizzes = getAll();
+        int randomIndex = new Random().nextInt(quizzes.size());
+        return quizzes.get(randomIndex);
     }
 
     public int getNumberOfQuizes(){

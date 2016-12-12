@@ -99,6 +99,11 @@ public class QuizEJBTest {
     }
 
     @Test
+    public void testGetRandomQuiz() {
+        assertEquals(quiz.getId(), quizEJB.getRandomQuiz().getId());
+    }
+
+    @Test
     public void getNumberOfQuizes() {
         int quizs = quizEJB.getNumberOfQuizes();
         quizEJB.registerQuiz(subCategory, "question", answerList, correctAnswer);
