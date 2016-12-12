@@ -1,5 +1,7 @@
 package org.pg6100.quizImp.datalayer;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,10 +11,10 @@ public class SubCategory {
 
     @Id @GeneratedValue
     private Long id;
-    @Column(unique = true)
+    @Column(unique = true) @NotEmpty
     private String name;
     @ManyToOne
-    Category rootCategory;
+    private Category rootCategory;
     @OneToMany(fetch = FetchType.EAGER)
     private Set<Quiz> quizList;
 
