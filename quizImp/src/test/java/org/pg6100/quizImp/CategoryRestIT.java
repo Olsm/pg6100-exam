@@ -1,4 +1,4 @@
-package org.pg6100.quizApi;
+package org.pg6100.quizImp;
 
 import io.restassured.http.ContentType;
 import org.junit.Test;

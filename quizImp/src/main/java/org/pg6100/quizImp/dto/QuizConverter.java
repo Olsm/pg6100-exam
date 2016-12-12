@@ -1,5 +1,7 @@
-package org.pg6100.quizApi.dto;
+package org.pg6100.quizImp.dto;
 
+import org.pg6100.quizApi.dto.QuizDTO;
+import org.pg6100.quizApi.dto.SubCategoryDTO;
 import org.pg6100.quizImp.datalayer.Quiz;
 
 import java.util.List;

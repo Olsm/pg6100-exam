@@ -1,11 +1,13 @@
-package org.pg6100.quizApi.api;
+package org.pg6100.quizImp.api;
 
 import com.google.common.base.Throwables;
-import org.pg6100.quizApi.dto.CategoryConverter;
+import org.pg6100.quizApi.api.RootCategoryRestApi;
+import org.pg6100.quizImp.dto.CategoryConverter;
+import org.pg6100.quizApi.dto.CategoryDTO;
 import org.pg6100.quizApi.dto.SubCategoryDTO;
 import org.pg6100.quizImp.businesslayer.CategoryEJB;
 import org.pg6100.quizImp.businesslayer.QuizEJB;
-import org.pg6100.quizImp.datalayer.SubCategory;
+import org.pg6100.quizImp.datalayer.Category;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -19,7 +21,7 @@ import java.util.Set;
 
 @Stateless
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED) //avoid creating new transactions
-public class SubCategoryRestImpl implements SubCategoryRestApi {
+public class RootCategoryRestImpl implements RootCategoryRestApi {
 
     @EJB
     private CategoryEJB cEJB;
@@ -27,50 +29,55 @@ public class SubCategoryRestImpl implements SubCategoryRestApi {
     private QuizEJB qEJB;
 
     @Override
-    public Set<SubCategoryDTO> get() {
-        return CategoryConverter.transformSubCategories(cEJB.getAllSubCategories());
+    public Set<CategoryDTO> get(boolean withQuizes) {
+        if (withQuizes)
+            return CategoryConverter.transformCategories(cEJB.getRootCategoriesWithQuizes());
+        else
+            return CategoryConverter.transformCategories(cEJB.getAllRootCategories());
     }
 
     @Override
-    public SubCategoryDTO getSubCategoryById(Long id) {
-        requireSubCategory(id);
-        return CategoryConverter.transform(cEJB.getSubCategory(id));
+    public CategoryDTO getRootCategoryById(Long id) {
+        requireRootCategory(id);
+        return CategoryConverter.transform(cEJB.getRootCategory(id));
     }
 
     @Override
-    public Long createSubCategory(SubCategoryDTO dto) {
-        if (dto.rootCategoryId == null)
-            throw new WebApplicationException("Root category must be specified when creating sub category");
-        else if (dto.name == null)
-            throw new WebApplicationException("Category name must be specified when creating sub category");
+    public Set<SubCategoryDTO> getSubCategoriesByRootCategory(Long id) {
+        requireRootCategory(id);
+        return CategoryConverter.transformSubCategories(cEJB.getRootCategory(id).getSubCategoryList());
+    }
 
-        SubCategory subCategory;
+    @Override
+    public Long createRootCategory(CategoryDTO dto) {
+        if (dto.name == null)
+            throw new WebApplicationException("Category name must be specified when creating root category");
+
+        Category rootCategory;
         try {
-            long rootCatId = parseId(dto.rootCategoryId);
-            subCategory = cEJB.registerSubCategory(cEJB.getRootCategory(rootCatId), dto.name);
+            rootCategory = cEJB.registerRootCategory(dto.name);
         } catch (Exception e) {
             throw wrapException(e);
         }
 
-        return subCategory.getId();
+        return rootCategory.getId();
     }
 
     @Override
-    public void updateSubCategory(Long id, SubCategoryDTO dto) {
-        long rootCatId = parseId(dto.rootCategoryId);
-        requireRootCategory(rootCatId);
-        requireSubCategory(id);
+    public void updateRootCategory(Long id, CategoryDTO dto) {
+        if (! cEJB.rootCatExists(id))
+            throw new WebApplicationException("Cannot find category with id " + id, 404);
 
         try {
-            cEJB.updateSubCategory(id, dto.name, rootCatId);
+            cEJB.updateRootCategory(id, dto.name);
         } catch (Exception e) {
             throw wrapException(e);
         }
     }
 
     @Override
-    public void deleteSubCategory(Long id) {
-        cEJB.deleteSubCategory(id);
+    public void deleteRootCategory(Long id) {
+        cEJB.deleteRootCategory(id);
     }
 
     //----------------------------------------------------------
@@ -78,20 +85,6 @@ public class SubCategoryRestImpl implements SubCategoryRestApi {
     private void requireRootCategory(Long id) throws WebApplicationException {
         if (!cEJB.rootCatExists(id)) {
             throw new WebApplicationException("Cannot find root category with id " + id, 404);
-        }
-    }
-
-    private void requireSubCategory(Long id) throws WebApplicationException {
-        if (!cEJB.subCatExists(id)) {
-            throw new WebApplicationException("Cannot find sub category with id " + id, 404);
-        }
-    }
-
-    private long parseId(String id) {
-        try{
-            return Long.parseLong(id);
-        } catch (Exception e){
-            throw new WebApplicationException("Invalid id: " + id, 400);
         }
     }
 
@@ -115,18 +108,25 @@ public class SubCategoryRestImpl implements SubCategoryRestApi {
     /* Deprecated methods */
 
     @Override
-    public Response deprecatedGetSubCategoryById(Long id) {
+    public Response deprecatedGetRootCategoryById(Long id) {
         return Response.status(301)
-                .location(UriBuilder.fromUri("subcategories")
+                .location(UriBuilder.fromUri("categories")
                         .queryParam("id", id).build())
                 .build();
     }
 
     @Override
-    public Response deprecatedGetSubWithGivenParentByCategory(Long id) {
+    public Response deprecatedGetWithQuizes() {
         return Response.status(301)
-                .location(UriBuilder.fromUri("categories")
-                        .queryParam("id", id).uri("subcategories").build())
+                .location(UriBuilder.fromUri("subcategories")
+                        .queryParam("withQuizes").build())
+                .build();
+    }
+
+    @Override
+    public Response deprecatedGetSubCategoriesByRootCategory(Long id) {
+        return Response.status(301)
+                .location(UriBuilder.fromUri("categories/" + id + "/subcategories").build())
                 .build();
     }
 }

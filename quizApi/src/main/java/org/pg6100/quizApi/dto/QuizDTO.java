@@ -32,7 +32,7 @@ public class QuizDTO {
     @ApiModelProperty("The correct answer of the quiz")
     public String correctAnswer;
 
-    QuizDTO(){}
+    public QuizDTO(){}
 
     public QuizDTO(String id, SubCategoryDTO category, String question, List<String> answerList, String correctAnswer) {
         this.id = id;

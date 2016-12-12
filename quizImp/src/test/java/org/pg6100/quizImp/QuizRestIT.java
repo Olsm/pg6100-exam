@@ -1,7 +1,8 @@
-package org.pg6100.quizApi;
+package org.pg6100.quizImp;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.pg6100.quizApi.dto.CategoryDTO;
@@ -53,8 +54,8 @@ public class QuizRestIT extends QuizRestTestBase {
         testGet().body("size()", is(1));
         testGet("/{id}", id)
                 .body("id", is(id))
-                .body("category.name", is(subCategory.name))
-                .body("category.rootCategoryId", is(rootCategory.id))
+                .body("category.name", Is.is(subCategory.name))
+                .body("category.rootCategoryId", Is.is(rootCategory.id))
                 .body("question", is(question))
                 .body("answerList", is(answerList))
                 .body("correctAnswer", is(correctAnswer));

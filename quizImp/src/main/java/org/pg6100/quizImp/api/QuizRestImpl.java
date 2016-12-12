@@ -1,12 +1,13 @@
-package org.pg6100.quizApi.api;
+package org.pg6100.quizImp.api;
 
 import com.google.common.base.Throwables;
-import org.pg6100.quizApi.dto.QuizConverter;
+import org.pg6100.quizApi.api.QuizRestApi;
 import org.pg6100.quizApi.dto.QuizDTO;
 import org.pg6100.quizImp.businesslayer.CategoryEJB;
 import org.pg6100.quizImp.businesslayer.QuizEJB;
 import org.pg6100.quizImp.datalayer.Quiz;
 import org.pg6100.quizImp.datalayer.SubCategory;
+import org.pg6100.quizImp.dto.QuizConverter;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;

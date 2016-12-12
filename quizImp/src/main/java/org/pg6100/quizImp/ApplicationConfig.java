@@ -1,8 +1,10 @@
-package org.pg6100.quizApi;
+package org.pg6100.quizImp;
 
 
 import io.swagger.jaxrs.config.BeanConfig;
-import org.pg6100.quizApi.api.*;
+import org.pg6100.quizImp.api.QuizRestImpl;
+import org.pg6100.quizImp.api.RootCategoryRestImpl;
+import org.pg6100.quizImp.api.SubCategoryRestImpl;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;

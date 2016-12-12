@@ -1,4 +1,4 @@
-package org.pg6100.quizApi;
+package org.pg6100.quizImp;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
