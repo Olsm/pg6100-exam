@@ -2,7 +2,7 @@ package org.pg6100.quizApi;
 
 
 import io.swagger.jaxrs.config.BeanConfig;
-import org.pg6100.QuizAPI.api.*;
+import org.pg6100.quizApi.api.*;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
