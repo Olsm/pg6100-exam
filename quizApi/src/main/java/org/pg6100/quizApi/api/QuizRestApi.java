@@ -16,9 +16,9 @@ import java.util.List;
  */
 
 
-@Api(value = "/quiz" , description = "Handling of creating and retrieving quiz")
+@Api(value = "/quizzes" , description = "Handling of creating and retrieving quiz")
 // when the url is "<base>/quiz", then this class will be used to handle it
-@Path("/quiz")
+@Path("/quizzes")
 @Produces(MediaType.APPLICATION_JSON) // states that, when a method returns something, it is in Json
 public interface QuizRestApi {
 
