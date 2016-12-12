@@ -12,7 +12,12 @@
 
 
     <modules>
-        
+        <module>quizApi</module>
+        <module>quizImp</module>
+        <module>gameCommands</module>
+        <module>gameRest</module>
+        <module>gameSoap</module>
+        <module>report</module>
     </modules>
 
 
