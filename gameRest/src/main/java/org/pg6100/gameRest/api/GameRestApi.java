@@ -3,7 +3,7 @@ package org.pg6100.gameRest.api;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.pg6100.quizApi.dto.QuizDTO;
+import org.pg6100.gameCommands.dto.GameDTO;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -17,7 +17,7 @@ public interface GameRestApi {
     @ApiOperation("Get a random game")
     @GET
     @Path("/random")
-    QuizDTO get();
+    GameDTO get();
 
     @ApiOperation("Post an answer")
     @POST
