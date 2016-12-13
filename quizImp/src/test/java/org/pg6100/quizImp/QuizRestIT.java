@@ -35,14 +35,14 @@ public class QuizRestIT extends QuizRestTestBase {
 
     @Test
     public void testCleanDB() {
-        testGet().body("size()", is(0));
+        testGet().body("list.size()", is(0));
     }
 
     @Test
     public void testCreateAndGetQuiz() {
         QuizDTO dto = createQuizDTO();
         dto.id = testRegisterQuiz(dto);
-        testGet().body("size()", is(1));
+        testGet().body("list.size()", is(1));
         testGet("/{id}", dto.id)
                 .body("id", is(dto.id))
                 .body("category.name", Is.is(subCategory.name))
@@ -67,10 +67,10 @@ public class QuizRestIT extends QuizRestTestBase {
     @Test
     public void testDelete() {
         String id = testRegisterQuiz(createQuizDTO());
-        testGet().body("id", is(Collections.singletonList(id)));
+        testGet().body("list.id", is(Collections.singletonList(id)));
 
         delete("/quizzes/" + id);
-        testGet().body("id", not(Collections.singletonList(id)));
+        testGet().body("list.id", not(Collections.singletonList(id)));
     }
 
 
@@ -78,7 +78,7 @@ public class QuizRestIT extends QuizRestTestBase {
     public void testUpdate() throws Exception {
         QuizDTO quizDTO = createQuizDTO();
         String id = testRegisterQuiz(quizDTO);
-        testGet().body("question", contains(quizDTO.question));
+        testGet().body("list.question", contains(quizDTO.question));
 
         String updatedQuestion = "new question";
 
@@ -87,7 +87,7 @@ public class QuizRestIT extends QuizRestTestBase {
         testUpdateQuiz(dto, dto.id);
 
         //was the PUT fine?
-        testGet().body("question", contains(updatedQuestion));
+        testGet().body("list.question", contains(updatedQuestion));
 
         //now rechange, but just the text
         String anotherQuestion = "yet another question";
@@ -99,14 +99,14 @@ public class QuizRestIT extends QuizRestTestBase {
                 .then()
                 .statusCode(204);
 
-        testGet().body("question", contains(anotherQuestion));
+        testGet().body("list.question", contains(anotherQuestion));
     }
 
     @Test
     public void testPatchChangeQuestion() throws Exception {
         QuizDTO quizDTO = createQuizDTO();
         quizDTO.id = testRegisterQuiz(quizDTO);
-        testGet().body("question", contains(quizDTO.question));
+        testGet().body("list.question", contains(quizDTO.question));
 
         String updatedQuestion = "new question";
 
@@ -119,7 +119,7 @@ public class QuizRestIT extends QuizRestTestBase {
                 .statusCode(204);
 
         //was the Patch fine?
-        testGet().body("question", contains(updatedQuestion));
+        testGet().body("list.question", contains(updatedQuestion));
     }
 
     @Test
@@ -183,15 +183,15 @@ public class QuizRestIT extends QuizRestTestBase {
     @Test
     public void testGetAll() {
         createSomeQuizes();
-        testGet().body("size()", is(6));
+        testGet().body("list.size()", is(6));
     }
 
     @Test
     public void testGetAllByCategory() {
         createSomeQuizes();
-        testGet("/categories/{id}", subCategory.id).body("size()", is(4));
-        testGet("/categories/{id}", subCategory2.id).body("size()", is(2));
-        testGet("/categories/{id}", subCategory3.id).body("size()", is(0));
+        testGet("/categories/{id}", subCategory.id).body("list.size()", is(4));
+        testGet("/categories/{id}", subCategory2.id).body("list.size()", is(2));
+        testGet("/categories/{id}", subCategory3.id).body("list.size()", is(0));
     }
 
     @Test

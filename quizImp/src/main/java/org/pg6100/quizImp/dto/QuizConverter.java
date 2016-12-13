@@ -1,5 +1,6 @@
 package org.pg6100.quizImp.dto;
 
+import org.pg6100.quizApi.collection.ListDto;
 import org.pg6100.quizApi.dto.QuizDTO;
 import org.pg6100.quizApi.dto.SubCategoryDTO;
 import org.pg6100.quizImp.datalayer.Quiz;
@@ -34,12 +35,28 @@ public class QuizConverter {
         return dto;
     }
 
-    public static List<QuizDTO> transform(List<Quiz> entities){
-        Objects.requireNonNull(entities);
+    public static ListDto<QuizDTO> transform(List<Quiz> quizList){
+        return  transform(quizList, 0, 100);
+    }
 
-        return entities.stream()
+    public static ListDto<QuizDTO> transform(List<Quiz> quizList, int offset, int limit){
+        Objects.requireNonNull(quizList);
+
+        List<QuizDTO> dtoList;
+        dtoList = quizList.stream()
+                .skip(offset)
+                .limit(limit)
                 .map(QuizConverter::transform)
                 .collect(Collectors.toList());
+
+        ListDto<QuizDTO> dto = new ListDto<>();
+        dto.list = dtoList;
+        dto._links = new ListDto.ListLinks();
+        dto.rangeMin = offset;
+        dto.rangeMax = dto.rangeMin + dtoList.size() - 1;
+        dto.totalSize = quizList.size();
+
+        return dto;
     }
 
 }

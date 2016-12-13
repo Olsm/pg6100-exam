@@ -2,6 +2,7 @@ package org.pg6100.quizApi.api;
 
 import io.swagger.annotations.*;
 import io.swagger.jaxrs.PATCH;
+import org.pg6100.quizApi.collection.ListDto;
 import org.pg6100.quizApi.dto.QuizDTO;
 
 import javax.ws.rs.*;
@@ -19,7 +20,18 @@ public interface QuizRestApi {
 
     @ApiOperation("Get all the quiz")
     @GET
-    List<QuizDTO> get();
+    ListDto<QuizDTO> get(
+            @ApiParam("Offset in the list of news")
+            @QueryParam("offset")
+            @DefaultValue("0")
+                    Integer offset,
+            @ApiParam("Limit of news in a single retrieved page")
+            @QueryParam("limit")
+            @DefaultValue("10")
+                    Integer limit,
+            @ApiParam("filter quizzes by subcategory")
+            @QueryParam("filter")
+                    Long filter);
 
     @ApiOperation("Get a single quiz specified by id")
     @GET
@@ -37,7 +49,7 @@ public interface QuizRestApi {
     @ApiOperation("Get all the quiz in the specified category")
     @GET
     @Path("/categories/{id}")
-    List<QuizDTO> getByCategory(
+    ListDto<QuizDTO> getByCategory(
             @ApiParam("The category id")
             @PathParam("id")
                     Long id);
@@ -64,7 +76,7 @@ public interface QuizRestApi {
     @Path("/{id}")
     @PATCH
     @Consumes("application/merge-patch+json")
-    public void update(@PathParam("id") Long id, String jsonPatch);
+    void update(@PathParam("id") Long id, String jsonPatch);
 
     @ApiOperation("Update the question of an existing quiz")
     @PUT

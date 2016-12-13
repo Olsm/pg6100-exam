@@ -46,12 +46,22 @@ public class QuizEJB {
     }
 
     public List<Quiz> getAll() {
-        Query query = em.createQuery("SELECT q FROM Quiz q");
+        return  getAll(1000);
+    }
+
+    public List<Quiz> getAll(int maxFromDb) {
+        Query query = em.createQuery("SELECT q FROM Quiz q")
+                .setMaxResults(maxFromDb);
         return (List<Quiz>) query.getResultList();
     }
 
     public List<Quiz> getAllFromCategory(SubCategory subCategory) {
-        Query query = em.createQuery("SELECT q FROM Quiz q where q.subCategory = :category");
+        return getAllFromCategory(subCategory, 1000);
+    }
+
+    public List<Quiz> getAllFromCategory(SubCategory subCategory, int maxFromDb) {
+        Query query = em.createQuery("SELECT q FROM Quiz q where q.subCategory = :category")
+                .setMaxResults(maxFromDb);
         query.setParameter("category", subCategory);
         return (List<Quiz>) query.getResultList();
     }

@@ -5,6 +5,7 @@ import io.restassured.http.ContentType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.pg6100.quizApi.collection.ListDto;
 import org.pg6100.quizApi.dto.QuizDTO;
 import org.pg6100.quizApi.dto.CategoryDTO;
 import org.pg6100.quizApi.dto.SubCategoryDTO;
@@ -12,6 +13,7 @@ import org.pg6100.utils.web.JBossUtil;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
@@ -34,15 +36,7 @@ public class QuizRestTestBase {
     @Before
     @After
     public void clean() {
-        List<QuizDTO> list1 = Arrays.asList(RestAssured.given().accept(ContentType.JSON).get("/quizzes")
-                .then()
-                .statusCode(200)
-                .extract().as(QuizDTO[].class));
-
-        list1.forEach(dto ->
-                RestAssured.given().pathParam("id", dto.id).delete("/quizzes/{id}").then().statusCode(204));
-
-        RestAssured.get("/quizzes").then().statusCode(200).body("size()", is(0));
+        cleanElements("/quizzes");
 
         List<SubCategoryDTO> list2 = Arrays.asList(RestAssured.given().accept(ContentType.JSON).get("/subcategories")
                 .then()
@@ -63,5 +57,37 @@ public class QuizRestTestBase {
                 RestAssured.given().pathParam("id", dto.id).delete("/categories/{id}").then().statusCode(204));
 
         RestAssured.get("/categories").then().statusCode(200).body("size()", is(0));
+    }
+
+    private void cleanElements(String path) {
+        int total = Integer.MAX_VALUE;
+
+        /*
+            as the REST API does not return the whole state of the database (even,
+            if I use an infinite "limit") I need to keep doing queries until the totalSize is 0
+         */
+
+        while (total > 0) {
+
+            //seems there are some limitations when handling generics
+            ListDto<?> listDto = given()
+                    .queryParam("limit", Integer.MAX_VALUE)
+                    .get(path)
+                    .then()
+                    .statusCode(200)
+                    .extract()
+                    .as(ListDto.class);
+
+            listDto.list.stream()
+                    //the "NewsDto" get unmarshalled into a map of fields
+                    .map(n -> ((Map) n).get("id"))
+                    .forEach(id ->
+                            given().delete(path + "/" + id)
+                                    .then()
+                                    .statusCode(204)
+                    );
+
+            total = listDto.totalSize - listDto.list.size();
+        }
     }
 }

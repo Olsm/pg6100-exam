@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
 import org.pg6100.quizApi.api.QuizRestApi;
+import org.pg6100.quizApi.collection.ListDto;
 import org.pg6100.quizApi.dto.QuizDTO;
+import org.pg6100.quizApi.hal.HalLink;
 import org.pg6100.quizImp.businesslayer.CategoryEJB;
 import org.pg6100.quizImp.businesslayer.QuizEJB;
 import org.pg6100.quizImp.datalayer.Category;
@@ -18,8 +20,10 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,14 +39,65 @@ public class QuizRestImpl implements QuizRestApi {
     private QuizEJB QEJB;
     @EJB
     private CategoryEJB CEJB;
+    @Context
+    UriInfo uriInfo;
 
     @Override
-    public List<QuizDTO> get() {
-        return QuizConverter.transform(QEJB.getAll());
+    public ListDto<QuizDTO> get(Integer offset, Integer limit, Long filter) {
+        if(offset < 0)
+            throw new WebApplicationException("Negative offset: "+offset, 400);
+        if(limit < 1)
+            throw new WebApplicationException("Limit should be at least 1: "+limit, 400);
+
+        int maxFromDb = 100;
+        List<Quiz> quizList;
+
+        if (filter != null) {
+            if(!CEJB.subCatExists(filter)){
+                throw new WebApplicationException("Cannot find subCategory with id " + filter, 404);
+            }
+            quizList = QEJB.getAllFromCategory(CEJB.getSubCategory(filter), maxFromDb);
+        } else {
+            quizList  = QEJB.getAll(maxFromDb);
+        }
+
+        if(offset != 0 && offset >=  quizList.size()){
+            throw new WebApplicationException("Offset "+ offset + " out of bound "+quizList.size(), 400);
+        }
+
+        ListDto<QuizDTO> quizDTOList = QuizConverter.transform(quizList, offset, limit);
+
+        UriBuilder builder = uriInfo.getBaseUriBuilder()
+                .path("/quizzes")
+                .queryParam("limit", limit);
+
+        if(filter != null){
+            builder = builder.queryParam("filter", filter);
+        }
+
+        quizDTOList._links.self = new HalLink(builder.clone()
+                .queryParam("offset", offset)
+                .build().toString()
+        );
+
+        if (!quizList.isEmpty() && offset > 0) {
+            quizDTOList._links.previous = new HalLink(builder.clone()
+                    .queryParam("offset", Math.max(offset - limit, 0))
+                    .build().toString()
+            );
+        }
+        if (offset + limit < quizList.size()) {
+            quizDTOList._links.next = new HalLink(builder.clone()
+                    .queryParam("offset", offset + limit)
+                    .build().toString()
+            );
+        }
+
+        return quizDTOList;
     }
 
     @Override
-    public List<QuizDTO> getByCategory(Long id) {
+    public ListDto<QuizDTO> getByCategory(Long id) {
         if (! CEJB.subCatExists(id))
             throw new WebApplicationException("Cannot find category with name: " + id, 400);
         return QuizConverter.transform(QEJB.getAllFromCategory(CEJB.getSubCategory(id)));
