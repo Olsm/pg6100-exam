@@ -5,18 +5,21 @@ import io.restassured.response.ValidatableResponse;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
+import org.pg6100.quizApi.collection.ListDto;
 import org.pg6100.quizApi.dto.CategoryDTO;
 import org.pg6100.quizApi.dto.SubCategoryDTO;
 import org.pg6100.quizApi.dto.QuizDTO;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static io.restassured.RestAssured.*;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class QuizRestIT extends QuizRestTestBase {
 
@@ -226,6 +229,179 @@ public class QuizRestIT extends QuizRestTestBase {
     public void testGetByInvalidId() {
         testGet("/{id}", "foo", 404);
     }
+
+    @Test
+    public void testSelfLink() {
+        int n = 6, limit = 3;
+        createSomeQuizes();
+
+        ListDto<?> listDto = given()
+                .queryParam("limit", limit)
+                .get("/quizzes")
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(ListDto.class);
+
+        assertEquals(n, (int) listDto.totalSize);
+        assertEquals(0, (int) listDto.rangeMin);
+        assertEquals(limit - 1, (int) listDto.rangeMax);
+
+        assertNull(listDto._links.previous);
+        assertNotNull(listDto._links.next);
+        assertNotNull(listDto._links.self);
+
+        //read again using self link
+        ListDto<?> selfDto = given()
+                .get(listDto._links.self.href)
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(ListDto.class);
+
+        Set<String> first = getQuestions(listDto);
+        Set<String> self = getQuestions(selfDto);
+
+        assertContainsTheSame(first, self);
+    }
+
+    @Test
+    public void testNextLink() {
+        int n = 6, limit = 2;
+        createSomeQuizes();
+
+        ListDto<?> listDto = given()
+                .queryParam("limit", limit)
+                .get("/quizzes")
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(ListDto.class);
+
+        assertEquals(n, (int) listDto.totalSize);
+        assertNotNull(listDto._links.next.href);
+
+        Set<String> values = getQuestions(listDto);
+        String next = listDto._links.next.href;
+
+        int counter = 0;
+
+        //read pages until there is still a "next" link
+        while (next != null) {
+
+            counter++;
+
+            int beforeNextSize = values.size();
+
+            listDto = given()
+                    .get(next)
+                    .then()
+                    .statusCode(200)
+                    .extract()
+                    .as(ListDto.class);
+
+            values.addAll(getQuestions(listDto));
+
+            assertEquals(beforeNextSize + limit, values.size());
+            assertEquals(counter * limit, (int) listDto.rangeMin);
+            assertEquals(listDto.rangeMin + limit - 1, (int) listDto.rangeMax);
+
+            if (listDto._links.next != null) {
+                next = listDto._links.next.href;
+            } else {
+                next = null;
+            }
+        }
+
+        assertEquals(n, values.size());
+    }
+
+    @Test
+    public void textPreviousLink() {
+        int n = 6, limit = 2;
+        createSomeQuizes();
+
+        ListDto<?> listDto = given()
+                .queryParam("limit", limit)
+                .get("/quizzes")
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(ListDto.class);
+
+        Set<String> first = getQuestions(listDto);
+
+        //read next page
+        ListDto<?> nextDto = given()
+                .get(listDto._links.next.href)
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(ListDto.class);
+
+        Set<String> next = getQuestions(nextDto);
+        // check that an element of next page was not in the first page
+        assertTrue(!first.contains(next.iterator().next()));
+
+        /*
+            The "previous" page of the "next" page should be the
+            first "self" page, ie
+
+            self.next.previous == self
+         */
+        ListDto<?> previousDto = given()
+                .get(nextDto._links.previous.href)
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(ListDto.class);
+
+        Set<String> previous = getQuestions(previousDto);
+        assertContainsTheSame(first, previous);
+    }
+
+    @Test
+    public void testFilter(){
+        QuizDTO dto = createQuizDTO();
+        dto.id = testRegisterQuiz(dto);
+        createSomeQuizes();
+
+        // Verify get with filter contains quiz
+        given().queryParam("filter", dto.category.id)
+                .get("/quizzes")
+                .then()
+                .statusCode(200)
+                .body("list.size()", is(5))
+                .body("list.id", hasItem(dto.id));
+
+        // Verify get with filter of category without quiz
+        given().queryParam("filter", subCategory2.id)
+                .get("/quizzes")
+                .then()
+                .statusCode(200)
+                .body("list.size()", is(2))
+                .body("list.id", not(hasItem(dto.id)));
+    }
+
+    /**
+     * Extract the "question" fields from all the quizzes
+     */
+    private Set<String> getQuestions(ListDto<?> selfDto) {
+
+        Set<String> values = new HashSet<>();
+        selfDto.list.stream()
+                .map(m -> (String) ((Map) m).get("question"))
+                .forEach(t -> values.add(t));
+
+        return values;
+    }
+
+    private void assertContainsTheSame(Collection<?> a, Collection<?> b) {
+        assertEquals(a.size(), b.size());
+        a.stream().forEach(v -> assertTrue(b.contains(v)));
+        b.stream().forEach(v -> assertTrue(a.contains(v)));
+    }
+
 
     private String registerCategory(Object dto, String path) {
         return given().contentType(ContentType.JSON)
