@@ -48,12 +48,6 @@ public class RootCategoryRestImpl implements RootCategoryRestApi {
     }
 
     @Override
-    public Set<SubCategoryDTO> getSubCategoriesByRootCategory(Long id) {
-        requireRootCategory(id);
-        return CategoryConverter.transformSubCategories(cEJB.getRootCategory(id).getSubCategoryList());
-    }
-
-    @Override
     public Long createRootCategory(CategoryDTO dto) {
         if (dto.name == null)
             throw new WebApplicationException("Category name must be specified when creating root category");
@@ -147,25 +141,18 @@ public class RootCategoryRestImpl implements RootCategoryRestApi {
     /* Deprecated methods */
 
     @Override
-    public Response deprecatedGetRootCategoryById(Long id) {
-        return Response.status(301)
-                .location(UriBuilder.fromUri("categories")
-                        .queryParam("id", id).build())
-                .build();
-    }
-
-    @Override
-    public Response deprecatedGetWithQuizes() {
-        return Response.status(301)
-                .location(UriBuilder.fromUri("subcategories")
-                        .queryParam("withQuizes").build())
-                .build();
-    }
-
-    @Override
     public Response deprecatedGetSubCategoriesByRootCategory(Long id) {
         return Response.status(301)
-                .location(UriBuilder.fromUri("categories/" + id + "/subcategories").build())
-                .build();
+                .location(UriBuilder.fromUri("/subcategories")
+                        .queryParam("parentId", id).build()).build();
     }
+
+    @Override
+    public Response deprecatedCreateSubCategoryByParent(Long id, SubCategoryDTO dto) {
+        return Response.status(301)
+                .location((UriBuilder.fromUri("/subcategories")
+                        .queryParam("parentId", id).queryParam("dto", dto)
+                        .build())).build();
+    }
+
 }

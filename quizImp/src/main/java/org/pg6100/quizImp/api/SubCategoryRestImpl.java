@@ -28,8 +28,11 @@ public class SubCategoryRestImpl implements SubCategoryRestApi {
     private QuizEJB qEJB;
 
     @Override
-    public Set<SubCategoryDTO> get() {
-        return CategoryConverter.transformSubCategories(cEJB.getAllSubCategories());
+    public Set<SubCategoryDTO> get(Long parentId) {
+        if (parentId != null)
+            return CategoryConverter.transformSubCategories(cEJB.getRootCategory(parentId).getSubCategoryList());
+        else
+            return  CategoryConverter.transformSubCategories(cEJB.getAllSubCategories());
     }
 
     @Override
@@ -39,7 +42,9 @@ public class SubCategoryRestImpl implements SubCategoryRestApi {
     }
 
     @Override
-    public Long createSubCategory(SubCategoryDTO dto) {
+    public Long createSubCategory(SubCategoryDTO dto, Long rootId) {
+        if (rootId != null)
+            dto.rootCategoryId = rootId.toString();
         if (dto.rootCategoryId == null)
             throw new WebApplicationException("Root category must be specified when creating sub category");
         else if (dto.name == null)
@@ -112,22 +117,4 @@ public class SubCategoryRestImpl implements SubCategoryRestApi {
         }
     }
 
-
-    /* Deprecated methods */
-
-    @Override
-    public Response deprecatedGetSubCategoryById(Long id) {
-        return Response.status(301)
-                .location(UriBuilder.fromUri("subcategories")
-                        .queryParam("id", id).build())
-                .build();
-    }
-
-    @Override
-    public Response deprecatedGetSubWithGivenParentByCategory(Long id) {
-        return Response.status(301)
-                .location(UriBuilder.fromUri("categories")
-                        .queryParam("id", id).uri("subcategories").build())
-                .build();
-    }
 }

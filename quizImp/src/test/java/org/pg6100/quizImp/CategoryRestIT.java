@@ -108,8 +108,15 @@ public class CategoryRestIT extends CategoryRestTestBase {
         createSubCategory(rootDTO1.id, "sub1");
         createSubCategory(rootDTO2.id, "sub2");
         createSubCategory(rootDTO2.id, "sub3");
+
         testGetSubCategories(3)
                 .body("name", hasItems("sub1", "sub2", "sub3"));
+        given().contentType(ContentType.JSON).queryParam("parentId", rootDTO1.id)
+                .get("/subcategories").then().statusCode(200)
+                .body("size()", is(1));
+        given().contentType(ContentType.JSON).pathParam("parentId", rootDTO2.id)
+                .get("/categories/{parentId}/subcategories").then().statusCode(200)
+                .body("size()", is(2));
     }
 
     @Test
@@ -139,21 +146,6 @@ public class CategoryRestIT extends CategoryRestTestBase {
 
         given().pathParam("id", rootDTO.id)
                 .get("/categories/{id}/subcategories")
-                .then()
-                .statusCode(200)
-                .body("name", hasItems("sub1", "sub2"));
-    }
-
-    @Test
-    public void testGetSubWithGivenParentByCategory() throws Exception {
-        CategoryDTO rootDTO = createCategory("root");
-        createSubCategory(rootDTO.id, "sub1");
-        createSubCategory(rootDTO.id, "sub2");
-        CategoryDTO rootDTO2 = createCategory("root2");
-        createSubCategory(rootDTO2.id, "sub3");
-
-        given().pathParam("id", rootDTO.id)
-                .get("/subcategories/parent/{id}")
                 .then()
                 .statusCode(200)
                 .body("name", hasItems("sub1", "sub2"));

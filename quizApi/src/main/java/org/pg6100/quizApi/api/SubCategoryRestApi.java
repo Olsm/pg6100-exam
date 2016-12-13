@@ -17,7 +17,10 @@ public interface SubCategoryRestApi {
 
     @ApiOperation("Get all the sub categories")
     @GET
-    Set<SubCategoryDTO> get();
+    Set<SubCategoryDTO> get(
+            @ApiParam(value = "Only the subcategories in the given category specified by parentId")
+            @QueryParam("parentId")
+                    Long parentId);
 
     @ApiOperation("Get subcategory by id")
     @GET
@@ -33,7 +36,9 @@ public interface SubCategoryRestApi {
     @ApiResponse(code = 200, message = "The id of the new subcategory")
     Long createSubCategory(
             @ApiParam("Category id and root category")
-                    SubCategoryDTO dto);
+                    SubCategoryDTO dto,
+            @ApiParam("Root category id")
+                    Long parentId);
 
     @ApiOperation("Update sub category by id")
     @PUT
@@ -57,29 +62,6 @@ public interface SubCategoryRestApi {
     @Path("/{id}")
     void deleteSubCategory(
             @ApiParam(ID_PARAM)
-            @PathParam("id")
-                    Long id);
-
-
-    /* Deprecated methods */
-
-    @ApiOperation("Get subcategory by id")
-    @ApiResponses({@ApiResponse(code = 301, message = "Deprecated URI. Moved permanently.")})
-    @GET
-    @Path("/id/{id}")
-    @Deprecated
-    Response deprecatedGetSubCategoryById(
-            @ApiParam(ID_PARAM)
-            @PathParam("id")
-                    Long id);
-
-    @ApiOperation("GET all subcategories with the given parent specified by id")
-    @ApiResponses({@ApiResponse(code = 301, message = "Deprecated URI. Moved permanently.")})
-    @GET
-    @Path("/parent/{id}")
-    @Deprecated
-    Response deprecatedGetSubWithGivenParentByCategory(
-            @ApiParam("The root category id")
             @PathParam("id")
                     Long id);
 }

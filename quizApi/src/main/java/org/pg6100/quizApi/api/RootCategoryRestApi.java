@@ -67,41 +67,30 @@ public interface RootCategoryRestApi {
             @PathParam("id")
                     Long id);
 
-    @ApiOperation("GET all subcategories of the category specified by id")
-    @GET
-    @Path("/{id}/subcategories")
-    Set<SubCategoryDTO> getSubCategoriesByRootCategory(
-            @ApiParam("The root category id")
-            @PathParam("id")
-                    Long id);
 
 
     /* Deprecated methods */
 
-    @ApiOperation("Get category by id")
-    @ApiResponses({@ApiResponse(code = 301, message = "Deprecated URI. Moved permanently.")})
-    @GET
-    @Path("/id/{id}")
-    @Deprecated
-    Response deprecatedGetRootCategoryById(
-            @ApiParam(ID_PARAM)
-            @PathParam("id")
-                    Long id);
-
-    @ApiOperation("all categories that have at least one subcategory with at least one subsubcategory with at least one quiz.")
-    @ApiResponses({@ApiResponse(code = 301, message = "Deprecated URI. Moved permanently.")})
-    @GET
-    @Path("/withQuizzes")
-    @Deprecated
-    Response deprecatedGetWithQuizes();
-
     @ApiOperation("GET all subcategories of the category specified by id")
-    @ApiResponses({@ApiResponse(code = 301, message = "Deprecated URI. Moved permanently.")})
     @GET
-    @Path("/id/{id}/subcategories")
+    @ApiResponses({@ApiResponse(code = 301, message = "Deprecated URI. Moved permanently.")})
+    @Path("/{parentId}/subcategories")
     @Deprecated
     Response deprecatedGetSubCategoriesByRootCategory(
             @ApiParam("The root category id")
-            @PathParam("id")
+            @PathParam("parentId")
                     Long id);
+
+    @ApiOperation("Create a new subcategory whose parent is the category specified by id")
+    @POST
+    @ApiResponses({@ApiResponse(code = 301, message = "Deprecated URI. Moved permanently.")})
+    @Path("/{parentId}/subcategories")
+    @Deprecated
+    Response deprecatedCreateSubCategoryByParent(
+            @ApiParam("The root category id")
+            @PathParam("parentId")
+                    Long id,
+            @ApiParam("Category name")
+                    SubCategoryDTO dto);
+
 }
