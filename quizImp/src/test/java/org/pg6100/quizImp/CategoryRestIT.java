@@ -7,6 +7,7 @@ import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.pg6100.quizApi.dto.CategoryDTO;
 import org.pg6100.quizApi.dto.SubCategoryDTO;
+import org.pg6100.utils.web.HttpUtil;
 
 import java.util.HashSet;
 
@@ -15,6 +16,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertTrue;
 
 public class CategoryRestIT extends CategoryRestTestBase {
     
@@ -149,6 +151,31 @@ public class CategoryRestIT extends CategoryRestTestBase {
                 .then()
                 .statusCode(200)
                 .body("name", hasItems("sub1", "sub2"));
+    }
+
+    @Test
+    public void testCreateCategoryRawHttp() throws Exception {
+        String body = "{\"name\": \"økologi\"}";
+
+        String header = "POST /quiz/api/categories HTTP/1.1\n";
+        header += "HOST: localhost:8080\n";
+        header += "content-type: application/json\n";
+        header += "accept: application/json\n";
+        header += "Content-Length: " + body.getBytes("UTF-8").length + "\n";
+        header += "\n";
+
+        String message = header + body;
+        String result = HttpUtil.executeHttpCommand("localhost", 8080, message);
+
+        String headers = HttpUtil.getHeaderBlock(result);
+        assertTrue(headers.contains("200 OK"));
+
+        String contentType = HttpUtil.getHeaderValue("Content-Type", result);
+        assertTrue(contentType.contains("application/json"));
+
+        body = HttpUtil.getBodyBlock(result);
+        String id = body.replace("\n", "");
+        testGetRootCategory(id);
     }
 
 
