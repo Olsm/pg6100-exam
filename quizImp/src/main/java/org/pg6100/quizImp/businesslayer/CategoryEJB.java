@@ -88,21 +88,6 @@ public class CategoryEJB {
         return new HashSet<>(query.getResultList());
     }
 
-    public Set<Category> getRootCategoriesWithQuizes() {
-        Set<Category> categories = getAllRootCategories();
-        Set<Category> categoriesWithQuizes = new HashSet<>();
-
-        for (Category rootCategory : categories) {
-            for (SubCategory subSubCategory : rootCategory.getSubCategoryList()) {
-                if (subSubCategory.getQuizList().size() > 0) {
-                    categoriesWithQuizes.add(rootCategory);
-                }
-            }
-        }
-
-        return categoriesWithQuizes;
-    }
-
     public Set<SubCategory> getSubCategoriesWithQuizes() {
         Set<SubCategory> subCategories = getAllSubCategories();
         Set<SubCategory> subCategoriesWithQuizes = new HashSet<>();

@@ -29,17 +29,20 @@ public class RootCategoryRestImpl implements RootCategoryRestApi {
     private QuizEJB qEJB;
 
     @Override
-    public Set<CategoryDTO> get(boolean withQuizes) {
-        if (withQuizes)
-            return CategoryConverter.transformCategories(cEJB.getRootCategoriesWithQuizes());
+    public Set<CategoryDTO> get(boolean expand) {
+        if (expand)
+            return CategoryConverter.transformCatsWithSubCats(cEJB.getAllRootCategories());
         else
             return CategoryConverter.transformCategories(cEJB.getAllRootCategories());
     }
 
     @Override
-    public CategoryDTO getRootCategoryById(Long id) {
+    public CategoryDTO getRootCategoryById(Long id, boolean expand) {
         requireRootCategory(id);
-        return CategoryConverter.transform(cEJB.getRootCategory(id));
+        if (expand)
+            return CategoryConverter.transformWithSubCats(cEJB.getRootCategory(id));
+        else
+            return CategoryConverter.transform(cEJB.getRootCategory(id));
     }
 
     @Override

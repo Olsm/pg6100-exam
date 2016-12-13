@@ -1,14 +1,19 @@
 package org.pg6100.quizImp;
 
 import io.restassured.http.ContentType;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.ValidatableResponse;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.pg6100.quizApi.dto.CategoryDTO;
 import org.pg6100.quizApi.dto.SubCategoryDTO;
 
+import java.util.HashSet;
+
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 
 public class CategoryRestIT extends CategoryRestTestBase {
@@ -60,12 +65,27 @@ public class CategoryRestIT extends CategoryRestTestBase {
         get(CATEGORY_PATH).then().statusCode(200).body("size()", is(0));
     }
 
-    /* TODO
     @Test
-    public void testGetWithQuizes() throws Exception {
+    public void testExpand() {
+        CategoryDTO rootDTO = createCategory("name");
+        SubCategoryDTO subDTO = createSubCategory(rootDTO.id, "name");
+        rootDTO.subCategories = new HashSet<>();
+        rootDTO.subCategories.add(subDTO);
 
+        // Categories with expand false should not be present
+        testGetRootCategories(1).body("subCategories", hasItem(nullValue()));
+
+        // Categories with expand true should be present
+        given().queryParam("expand", true).get("/categories").then()
+                .statusCode(200).body("subCategories[0].id", hasItems(subDTO.id));
+
+        // Category with expand false should not be present
+        testGetRootCategory(rootDTO.id).body("subCategories", nullValue());
+
+        // Category with expand true should be present
+        given().pathParam("id", rootDTO.id).queryParam("expand", true).get("/categories/{id}").then()
+                .statusCode(200).body("subCategories.id", hasItems(subDTO.id));
     }
-    */
 
 
     @Test
@@ -139,16 +159,16 @@ public class CategoryRestIT extends CategoryRestTestBase {
         return dto;
     }
     
-    private void testGetRootCategory(String id) {
-        testGetCategory(CATEGORY_PATH, id);
+    private ValidatableResponse testGetRootCategory(String id) {
+        return testGetCategory(CATEGORY_PATH, id);
     }
 
     private void testGetSubCategory(String id) {
         testGetCategory(SUBCATEGORY_PATH, id);
     }
 
-    private void testGetCategory(String path, String id) {
-        given().pathParam("id", id)
+    private ValidatableResponse testGetCategory(String path, String id) {
+        return given().pathParam("id", id)
                 .get(path + "/{id}")
                 .then()
                 .statusCode(200)

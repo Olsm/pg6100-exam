@@ -20,8 +20,8 @@ public interface RootCategoryRestApi {
     @GET
     Set<CategoryDTO> get(
             @ApiParam("Root categories with quizes")
-            @QueryParam("withQuizes")
-                    boolean withQuizes
+            @QueryParam("expand")
+                    boolean expand
     );
 
     @ApiOperation("Get category by id)")
@@ -30,7 +30,9 @@ public interface RootCategoryRestApi {
     CategoryDTO getRootCategoryById(
             @ApiParam(ID_PARAM)
             @PathParam("id")
-                    Long id);
+                    Long id,
+            @QueryParam("expand")
+                    boolean expand);
 
     @ApiOperation("Create a category")
     @POST

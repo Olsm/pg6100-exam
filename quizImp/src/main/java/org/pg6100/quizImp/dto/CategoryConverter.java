@@ -22,6 +22,13 @@ public class CategoryConverter {
         return new SubCategoryDTO(category.getRootCategory().getId().toString(), category.getId().toString(), category.getName());
     }
 
+    public static CategoryDTO transformWithSubCats(Category category) {
+        Objects.requireNonNull(category);
+        CategoryDTO dto = new CategoryDTO(category.getId().toString(), category.getName());
+        dto.subCategories = transformSubCategories(category.getSubCategoryList());
+        return dto;
+    }
+
     public static Set<CategoryDTO> transformCategories(Set<Category> categories) {
         Objects.requireNonNull(categories);
         return categories.stream()
@@ -33,6 +40,13 @@ public class CategoryConverter {
         Objects.requireNonNull(categories);
         return categories.stream()
                 .map(CategoryConverter::transform)
+                .collect(Collectors.toSet());
+    }
+
+    public static Set<CategoryDTO> transformCatsWithSubCats(Set<Category> categories) {
+        Objects.requireNonNull(categories);
+        return categories.stream()
+                .map(CategoryConverter::transformWithSubCats)
                 .collect(Collectors.toSet());
     }
 }
