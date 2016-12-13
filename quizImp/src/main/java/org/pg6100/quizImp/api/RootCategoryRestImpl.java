@@ -1,5 +1,7 @@
 package org.pg6100.quizImp.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
 import org.pg6100.quizApi.api.RootCategoryRestApi;
 import org.pg6100.quizImp.dto.CategoryConverter;
@@ -73,6 +75,40 @@ public class RootCategoryRestImpl implements RootCategoryRestApi {
 
         try {
             cEJB.updateRootCategory(id, dto.name);
+        } catch (Exception e) {
+            throw wrapException(e);
+        }
+    }
+
+    @Override
+    public void updateRootCategory(Long id, String jsonPatch) {
+        if (! cEJB.rootCatExists(id))
+            throw new WebApplicationException("Cannot find category with id " + id, 404);
+
+        Category category = cEJB.getRootCategory(id);
+        String name = category.getName();
+
+        ObjectMapper jackson = new ObjectMapper();
+        JsonNode jsonNode;
+        try {
+            jsonNode = jackson.readValue(jsonPatch, JsonNode.class);
+        } catch (Exception e) {
+            throw new WebApplicationException("Invalid JSON data as input: " + e.getMessage(), 400);
+        }
+
+        if (jsonNode.has("name")) {
+            JsonNode node = jsonNode.get("name");
+            if (node.isNull()) {
+                name = null;
+            } else if (node.isTextual()) {
+                name = node.asText();
+            } else {
+                throw new WebApplicationException("Invalid JSON. Non-string name", 400);
+            }
+        }
+
+        try {
+            cEJB.updateRootCategory(id, name);
         } catch (Exception e) {
             throw wrapException(e);
         }

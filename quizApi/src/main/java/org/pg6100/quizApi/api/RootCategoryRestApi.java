@@ -1,6 +1,7 @@
 package org.pg6100.quizApi.api;
 
 import io.swagger.annotations.*;
+import io.swagger.jaxrs.PATCH;
 import org.pg6100.quizApi.dto.CategoryDTO;
 import org.pg6100.quizApi.dto.SubCategoryDTO;
 
@@ -53,11 +54,10 @@ public interface RootCategoryRestApi {
             @ApiParam("The category that will replace the old one")
                     CategoryDTO dto);
 
-    /* TODO: Patch
-    @ApiOperation("")
+    @Path("/{id}")
     @PATCH
-    @Path("/subcategories/id/{id}");
-    */
+    @Consumes("application/merge-patch+json")
+    public void updateRootCategory(@PathParam("id") Long id, String jsonPatch);
 
     @ApiOperation("Delete a category with given id (name)")
     @DELETE

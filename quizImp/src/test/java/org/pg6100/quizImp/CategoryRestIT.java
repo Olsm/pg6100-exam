@@ -51,6 +51,19 @@ public class CategoryRestIT extends CategoryRestTestBase {
     }
 
     @Test
+    public void testUpdateCategory() throws Exception {
+        CategoryDTO dto = createCategory("name1");
+        dto.name = "name2";
+        given().contentType("application/merge-patch+json")
+                .pathParam("id", dto.id)
+                .body("{\"name\":\""+dto.name+"\"}")
+                .patch("/categories/{id}")
+                .then()
+                .statusCode(204);
+        testGetRootCategory(dto.id);
+    }
+
+    @Test
     public void testUpdateRootCategory() throws Exception {
         CategoryDTO dto = createCategory("name1");
         dto.name = "name2";
