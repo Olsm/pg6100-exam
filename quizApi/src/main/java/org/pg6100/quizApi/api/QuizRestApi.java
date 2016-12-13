@@ -1,6 +1,7 @@
 package org.pg6100.quizApi.api;
 
 import io.swagger.annotations.*;
+import io.swagger.jaxrs.PATCH;
 import org.pg6100.quizApi.dto.QuizDTO;
 
 import javax.ws.rs.*;
@@ -59,6 +60,11 @@ public interface QuizRestApi {
                     Long id,
             @ApiParam("The quiz that will replace the old one. Cannot change its id though.")
                     QuizDTO dto);
+
+    @Path("/{id}")
+    @PATCH
+    @Consumes("application/merge-patch+json")
+    public void update(@PathParam("id") Long id, String jsonPatch);
 
     @ApiOperation("Update the question of an existing quiz")
     @PUT

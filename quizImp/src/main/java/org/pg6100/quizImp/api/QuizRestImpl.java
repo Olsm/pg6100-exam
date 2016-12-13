@@ -1,10 +1,13 @@
 package org.pg6100.quizImp.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
 import org.pg6100.quizApi.api.QuizRestApi;
 import org.pg6100.quizApi.dto.QuizDTO;
 import org.pg6100.quizImp.businesslayer.CategoryEJB;
 import org.pg6100.quizImp.businesslayer.QuizEJB;
+import org.pg6100.quizImp.datalayer.Category;
 import org.pg6100.quizImp.datalayer.Quiz;
 import org.pg6100.quizImp.datalayer.SubCategory;
 import org.pg6100.quizImp.dto.QuizConverter;
@@ -17,6 +20,7 @@ import javax.validation.ConstraintViolationException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -105,6 +109,73 @@ public class QuizRestImpl implements QuizRestApi {
         } catch (Exception e){
             throw wrapException(e);
         }
+    }
+
+    @Override
+    public void update(Long id, String jsonPatch) {
+        if (! QEJB.isPresent(id))
+            throw new WebApplicationException("Cannot find quiz with id " + id, 404);
+
+        Quiz quiz = QEJB.getQuiz(id);
+        String question = quiz.getQuestion();
+        List<String> answers = quiz.getAnswers();
+        String correctAnswer = Integer.toString(quiz.getAnswers().indexOf(quiz.getCorrectAnswer()));
+        SubCategory subCategory = quiz.getSubCategory();
+
+        ObjectMapper jackson = new ObjectMapper();
+        JsonNode jsonNode;
+        JsonNode arrNode;
+        try {
+            jsonNode = jackson.readValue(jsonPatch, JsonNode.class);
+            arrNode = new ObjectMapper().readTree(jsonPatch);
+        } catch (Exception e) {
+            throw new WebApplicationException("Invalid JSON data as input: " + e.getMessage(), 400);
+        }
+
+        question = (String) jsonNodeExtract(jsonNode, "question", question);
+        answers = (List<String>) jsonNodeExtract(arrNode, "answers", answers);
+        correctAnswer = (String) jsonNodeExtract(jsonNode, "correctAnswer", correctAnswer);
+        subCategory = (SubCategory) jsonNodeExtract(jsonNode, "subCategory", subCategory);
+
+        if (jsonNode.has("answers")) {
+            JsonNode node = arrNode.get("answers");
+            if (node.isNull()) {
+                answers = null;
+            } else if (arrNode.isArray()) {
+                answers = new ArrayList<>();
+                for (final JsonNode objNode : arrNode) {
+                    answers.add(objNode.asText());
+                }
+            } else {
+                throw new WebApplicationException("Invalid JSON. Non-string question", 400);
+            }
+        }
+
+        try {
+            QEJB.update(quiz.getId(), question, answers, Integer.parseInt(correctAnswer));
+        } catch (Exception e) {
+            throw wrapException(e);
+        }
+    }
+
+    private Object jsonNodeExtract(JsonNode jsonNode, String nodeKey, Object value) {
+        if (jsonNode.has(nodeKey)) {
+            JsonNode node = jsonNode.get(nodeKey);
+            if (node.isNull()) {
+                value = null;
+            } else if (jsonNode.isArray()) {
+                ArrayList<String> newValue = new ArrayList<>();
+                for (final JsonNode objNode : jsonNode) {
+                    newValue.add(objNode.asText());
+                }
+                value = newValue;
+            } else if (node.isTextual()) {
+                value = node.asText();
+            } else {
+                throw new WebApplicationException("Invalid JSON. Non-string question", 400);
+            }
+        }
+        return value;
     }
 
     @Override

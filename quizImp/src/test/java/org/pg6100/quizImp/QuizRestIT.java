@@ -103,6 +103,26 @@ public class QuizRestIT extends QuizRestTestBase {
     }
 
     @Test
+    public void testPatchChangeQuestion() throws Exception {
+        QuizDTO quizDTO = createQuizDTO();
+        quizDTO.id = testRegisterQuiz(quizDTO);
+        testGet().body("question", contains(quizDTO.question));
+
+        String updatedQuestion = "new question";
+
+        //now change text with Patch
+        given().contentType("application/merge-patch+json")
+                .pathParam("id", quizDTO.id)
+                .body("{\"question\":\""+updatedQuestion+"\"}")
+                .patch("/quizzes/{id}")
+                .then()
+                .statusCode(204);
+
+        //was the Patch fine?
+        testGet().body("question", contains(updatedQuestion));
+    }
+
+    @Test
     public void testMissingForUpdate() {
         QuizDTO quizDTO = createQuizDTO();
         quizDTO.id = "-333";
