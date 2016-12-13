@@ -26,7 +26,7 @@ public class GameApplication extends Application<GameConfiguration> {
 
     @Override
     public String getName() {
-        return "GameAPI written in DropWizard";
+        return "gameRest written in DropWizard";
     }
 
     @Override
@@ -54,7 +54,7 @@ public class GameApplication extends Application<GameConfiguration> {
         beanConfig.setSchemes(new String[]{"http"});
         beanConfig.setHost("localhost:8080");
         beanConfig.setBasePath("/game");
-        beanConfig.setResourcePackage("org.pg6100.GameAPI");
+        beanConfig.setResourcePackage("org.pg6100.gameRest");
         beanConfig.setScan(true);
 
         //Hystrix configuration
