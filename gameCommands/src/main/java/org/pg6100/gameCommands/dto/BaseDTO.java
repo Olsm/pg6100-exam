@@ -5,6 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 public class BaseDTO {
 
     @ApiModelProperty("The id of the quiz")
-    public Long id;
+    public String id;
 
 }

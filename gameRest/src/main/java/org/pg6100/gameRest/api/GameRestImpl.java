@@ -19,8 +19,15 @@ public class GameRestImpl implements GameRestApi {
 
     @Override
     public boolean post(AnswerDTO quizAnswer) {
-        Long quizId = quizAnswer.id;
-        int chosenAnswer = quizAnswer.answerIndex;
+        int chosenAnswer = 0;
+        long quizId = 0;
+        try{
+            quizId = Long.parseLong(quizAnswer.id);
+            chosenAnswer = Integer.parseInt(quizAnswer.answerIndex);
+        } catch (Exception e){
+            throwException("Invalid id: " + quizAnswer.id, 400);
+        }
+
         if (quizId < 0)
             throwException("Invalid quiz id: " + quizId, 400);
         if (chosenAnswer < 1 || chosenAnswer > 4)

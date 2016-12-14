@@ -10,15 +10,11 @@ import java.util.List;
 public class AnswerDTO extends BaseDTO {
 
     @ApiModelProperty("The chosen answer for the quiz")
-    public int answerIndex;
+    public String answerIndex;
 
     public AnswerDTO(){}
 
-    public AnswerDTO(String id) {
-        this(Long.parseLong(id), -1);
-    }
-
-    public AnswerDTO(Long id, int answerIndex) {
+    public AnswerDTO(String id, String answerIndex) {
         this.id = id;
         this.answerIndex = answerIndex;
     }

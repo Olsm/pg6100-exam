@@ -21,10 +21,8 @@ public interface GameRestApi {
     @ApiOperation("Post an answer")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     @Path("/games")
     boolean post(
             @ApiParam("Quiz Answer")
-            @QueryParam("quizAnswer")
                     AnswerDTO quizAnswer);
 }

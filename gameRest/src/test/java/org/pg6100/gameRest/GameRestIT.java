@@ -1,5 +1,6 @@
 package org.pg6100.gameRest;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import io.restassured.http.ContentType;
 import org.junit.ClassRule;
@@ -8,6 +9,8 @@ import org.junit.Test;
 import static io.restassured.RestAssured.given;
 
 public class GameRestIT {
+
+    private static WireMockServer wiremockServer;
 
     @ClassRule
     public static final DropwizardAppRule<GameConfiguration> RULE =
@@ -22,4 +25,8 @@ public class GameRestIT {
                 .then()
                 .statusCode(200);
     }
+
+
+
+
 }

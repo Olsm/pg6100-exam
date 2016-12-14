@@ -33,15 +33,15 @@ public class CallQuiz extends HystrixCommand<Object> {
         URI uri;
         Object result;
         if (id == null) {
-            uri = base.path("/{id}").build();
-            result = client.target(uri).request()
-                    .get()
-                    .readEntity(QuizDTO.class);
-        } else {
             uri = base.path("/random").build();
             result = client.target(uri).request()
                     .get()
                     .readEntity(GameDTO.class);
+        } else {
+            uri = base.path("/{id}").build();
+            result = client.target(uri).request()
+                    .get()
+                    .readEntity(QuizDTO.class);
         }
 
         return result;
