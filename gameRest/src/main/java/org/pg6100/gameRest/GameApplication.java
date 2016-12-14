@@ -53,7 +53,7 @@ public class GameApplication extends Application<GameConfiguration> {
         beanConfig.setVersion("0.0.1");
         beanConfig.setSchemes(new String[]{"http"});
         beanConfig.setHost("localhost:8080");
-        beanConfig.setBasePath("/game");
+        beanConfig.setBasePath("/game/api");
         beanConfig.setResourcePackage("org.pg6100.gameRest");
         beanConfig.setScan(true);
 

@@ -158,7 +158,7 @@
                                 This will specify the entry point of the packaged jar, ie the
                                 class with the "main(String[] args)" method
                             -->
-                            <mainClass>org.pg6100.dropwizard.newsdw.NewsApplication</mainClass>
+                            <mainClass>org.pg6100.gameRest.GameApplication</mainClass>
                         </transformer>
                     </transformers>
                 </configuration>

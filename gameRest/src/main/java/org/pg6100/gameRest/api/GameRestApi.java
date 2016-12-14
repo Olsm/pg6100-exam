@@ -11,14 +11,15 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
-@Api(value = "/api", description = "Handling of quiz game")
-@Path("/api")
+@Api(description = "Handling of quiz game")
+@Path("")
 public interface GameRestApi {
     @ApiOperation("Get a random game")
     @GET
     @Path("/random")
     GameDTO get();
 
+    /*
     @ApiOperation("Post an answer")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -28,4 +29,5 @@ public interface GameRestApi {
                     Long quizId,
             @ApiParam("Index of chosen answer")
                     int chosenAnswer);
+    */
 }

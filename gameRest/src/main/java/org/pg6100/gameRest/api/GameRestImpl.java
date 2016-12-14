@@ -16,6 +16,7 @@ public class GameRestImpl implements GameRestApi {
         return dto;
     }
 
+    /*
     @Override
     public boolean post(Long quizId, int chosenAnswer) {
         if (quizId < 0)
@@ -29,6 +30,7 @@ public class GameRestImpl implements GameRestApi {
 
         return dto.question.indexOf(dto.correctAnswer) == chosenAnswer;
     }
+    */
 
     private void throwException(String message, int code) {
         throw new WebApplicationException(message, code);
