@@ -1,5 +1,6 @@
 package org.pg6100.gameRest.api;
 
+import org.pg6100.gameCommands.dto.AnswerDTO;
 import org.pg6100.gameCommands.dto.GameDTO;
 import org.pg6100.gameCommands.hystrix.CallQuiz;
 import org.pg6100.quizApi.dto.QuizDTO;
@@ -16,9 +17,10 @@ public class GameRestImpl implements GameRestApi {
         return dto;
     }
 
-    /*
     @Override
-    public boolean post(Long quizId, int chosenAnswer) {
+    public boolean post(AnswerDTO quizAnswer) {
+        Long quizId = quizAnswer.id;
+        int chosenAnswer = quizAnswer.answerIndex;
         if (quizId < 0)
             throwException("Invalid quiz id: " + quizId, 400);
         if (chosenAnswer < 1 || chosenAnswer > 4)
@@ -30,7 +32,6 @@ public class GameRestImpl implements GameRestApi {
 
         return dto.question.indexOf(dto.correctAnswer) == chosenAnswer;
     }
-    */
 
     private void throwException(String message, int code) {
         throw new WebApplicationException(message, code);

@@ -17,7 +17,7 @@ public class GameDTO extends BaseDTO {
 
     public GameDTO(){}
 
-    public GameDTO(String id, String question, List<String> answerList, String correctAnswer) {
+    public GameDTO(Long id, String question, List<String> answerList, String correctAnswer) {
         this.id = id;
         this.question = question;
         this.answerList = answerList;

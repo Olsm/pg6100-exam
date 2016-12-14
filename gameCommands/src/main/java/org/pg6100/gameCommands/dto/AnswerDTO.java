@@ -14,7 +14,11 @@ public class AnswerDTO extends BaseDTO {
 
     public AnswerDTO(){}
 
-    public AnswerDTO(String id, int answerIndex) {
+    public AnswerDTO(String id) {
+        this(Long.parseLong(id), -1);
+    }
+
+    public AnswerDTO(Long id, int answerIndex) {
         this.id = id;
         this.answerIndex = answerIndex;
     }
